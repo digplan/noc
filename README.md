@@ -1,6 +1,6 @@
 # raftsimple
 Allow a distributed, replicated logging/state machine system that does not rely on time syncronization
-1. Must be able to start a node on a specified port, default 6969
+1. Must be able to start a node on a specified port, default 6969 (for https transport)
 2. Must be able to accept log entires from clients
 3. Must be able to keep a log and state machine for the node
 4. Must be able to keep a list of nodes in the cluster and communicate with other nodes via https
