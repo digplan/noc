@@ -1,28 +1,26 @@
-const https = {
-  start: async ()=>{},
+const cli = {
+  start: async (parentid, node, options)=>{
+    
+  },
   receive: ()=>{},
-  send: (cmd, msg) => {}
+  send: (to, msg) => {}
 }
 
 const node = async () => {
   const f = r => {
-    start: (parentid, transport=https, options) => {
-      await transport.start()
-      this.nodes = this.getMembers()
-      this.nodeid = ''
+    start: (parentid, options, transport_module) => {
+      const transport = transport_module ? require(transport_module) : cli 
+      await transport.start(parentid, this, options)
     },
     head: '', nodeid: '', nodes: [],
-    getMembers: ()=>{},
     getHash: entry => {
       return +new Date() + nodeid + entry
     },
     addEntry: entry => {},
-    initSM: ()=>{},
-    initLog: ()=>{},
     updateSM: entry => {},
     acceptEntry: entry => {},
     commitEntry: entry => {},
-    getRefreshed: ()=>{}
+    refresh: ()=>{}
   }
   return new Promise(f)
 }
