@@ -1,32 +1,26 @@
 # raftsimple
-Allow a distributed, replicated logging/state machine system that does not rely on time syncronization
-1. Must be able to start a node on a specified port, default 6969 (for https transport)
-2. Must be able to accept log entires from clients
-3. Must be able to keep a log and state machine for the node
-4. Must be able to keep a list of nodes in the cluster and communicate with other nodes via https
-5. Must be able to allow other transport methods
-6. Must be able to join a cluster
-7. Must be able to be specified as a read-only node, which does not accept log entries from clients
-8. Must be able to specify a function that determines what is done in the state machine, when a log entry is accepted
-9. The node calculates and keeps a unique hash for each new log entry
-10. The hash for the latest log entry accepted by the cluster is called the "head", and is kept by each node
+Allow a distributed, replicated logging/state machine system that does not rely on time syncronization.
 
-Log entries (on each node) have the states, 
-pending (awaiting acceptance by the node)
-accepted (accepted by the node, awaiting commit by the 'cluster')
-committed (accepted by the cluster)
+Log - a text log
+Cluster - a group of servers managing a log
+Node - a member server of a cluster
+Head - a SHA hash representing the current/latest state of the log
+Hash - separates transactions
+Client - communicates with nodes, like web clients
 
-11. Client sends update to node
-12. When a new log entry is received from a client, its state is pending.
-12a. It determines if it can be commited, based on if its an acceptable update to the state machine
-12b. If not, it fails and returns back a failure code to the client
-12c. If so, it calculates a hash for the log entry (time+nodeid+logentry), this is the transaction id for the cluster
-13. It accepts the log entry and sends it, along with the hash, and the current head, to all members of the cluster
-14. When receiving a new log entry from another node, the node checks the head that was sent against its copy of the head
-15. If matches, it sends back a accept message, updates the log entry to a state of accepted. The node must queue any new log entries from clients at this time.
-16. If head does not match, it waits a timeout period for other pending log entries
-16a. If that timeout expires, it restarts the node
+1. A node starts a cluster, a log may exist or not
+2a. A node may join a cluster by specifying an existing cluster node, sending its top level hash
+2b. The reply is all the transactions above the hash, the node updates its log
+2c. A list of the cluster servers is sent as well
+3. A log is maintained which is a list of transactions (lines) separated by a SHA256 hash
+4. Every log is started with the hash for a blank string
 
-17. When the sender recieves a commit message from a majority of nodes
-17a. It sets to committed, notifies the client and sends a commit message to nodes that sent accept messages
-18. Nodes accept commit messages, update their head, process the entry, and process their pending queue
+When a new transaction comes in (from a client),
+SAMPLE LOG (with 1 transaction):
+````
+cbc80bb5c0c0f8944bf73b3a429505ac5cde16644978bc9a1e74c5755f8ca556
+someinformation1
+someinformation2
+someinformation3
+01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+````
